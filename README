@@ -1,7 +1,7 @@
 [ PARROT ]
 
 A fun server that repeats what you tell him to repeat.
-An original idea from Guillaume Chelfi and Yanick Méheut.
+An original idea from Guillaume Chelfi and Yannick Méheut.
 
 [ HISTORY ]
 
@@ -48,6 +48,9 @@ parrot_server:
 	Don't forget to make the script executable by with:
 
 	~$ chmod +x parrot_server.py
+
+parrot_client:
+	Whoops! Nothing to see here at the moment!
 
 [ COPYRIGHT ]
 
