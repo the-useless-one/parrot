@@ -1,41 +1,88 @@
 #!/usr/bin/env python2
-# -*- encoding: Utf-8 -*-
+#-*- encoding-: Utf-8 -*-
 
-import os, socket, select
-import time, random
+import os, socket, threading
 
 class ParrotServer():
-    def __init__(self, parent, word, frequence):
-		'''This function is the constructor for the ParrotServer class:
-			* parent: the calling MainServer
-			* word: the word we\'ll send
-			* frequence: the frequence we\'ll wait'''
-		# Default parameter, change it to desired value
-		ParrotServer.min_frequence = 0.5
+	def __init__(self, port):
+		'''This function is the ParrotServer class constructor:
+		* port: the port to listen to'''
+		# Default values, you can change them
+		ParrotServer.default_words_frequences = [('vite', 0.8), ('BOUM', 1.0)]
+		ParrotServer.max_words = 10
+		ParrotServer.greeting = 'Connected to useless\' parrot server. Have fun!\n'
 
-		# We initialize the parameters
-		self.parent = parent
-		self.word = word
-		# If the frequence is correct, we keep it
-		if frequence >= ParrotServer.min_frequence:
-			self.frequence = frequence
-		# If it's negative, we take a random smaller frequence
-		elif frequence <= -1.0 * ParrotServer.min_frequence:
-			self.frequence = -1.0*ParrotServer.min_frequence*random.random()
-	# FIXME we have to handle the case where the frequence is not correct
+		# We make sure the configuration is sound
+		assert(len(ParrotServer.default_words_frequences) <= ParrotServer.max_words)
 
-    def send_word(self):
-		'''This function sends the specified word at
-		the specified frequence'''
+		self.port = port
+
+		# We initialize the socket, and tell the OS
+		# we want to reuse the address
+		self.socket = socket.socket()
+		self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.socket.bind(('', self.port))
+		self.socket.listen(5)
+
+		# We initialize the ParrotServer's arguments
+		self.words_frequences = []
+		self.client_sockets = []
+
+		for word,freq in ParrotServer.default_words_frequences:
+			self.add_word_frequence(word, freq)
+
+	def add_word_frequence(self, word, freq):
+		'''This function will add a (word,frequence) couple to
+		self.words_frequences. It will then call the send_word
+		method, after having checked that there isn't too many
+		words in the list:
+		* word: word to add to the list
+		* freq: frequence to add to the list'''
+		# We check that the word isn't already in the list
+		for w,f in self.words_frequences:
+			if w == word:
+				return
+
+		# If it's not, we add it to the end of the list
+		self.words_frequences.append((word, freq))
+		# If there is too many elements, we delete the first one
+		if len(self.words_frequences) > ParrotServer.max_words:
+			del self.words_frequences[0]
+		# If not, we have to add a timer
+		else:
+			self.send_word(len(self.words_frequences)-1)
+
+		print 'New word added: (%s, %f)' % (word, freq)
+
+	def send_word(self, i):
+		'''This function sends the word, and launches a timer
+		which will call the function again, after the time freq:
+		* i: index of the (word,frequence) couple in the 
+			self.words_frequences list'''
+		word,freq = self.words_frequences[i]
+		threading.Timer(freq, self.send_word, args=(i,)).start()
+		for client_socket in self.client_sockets:
+			client_socket.send('%s ' % word)
+
+	def launch(self):
+		'''This function launches the ParrotServer.'''
+		print 'Listening on %d' % self.port
+
 		try:
-			print '[PID: %5i] ParrotServer, sending %s' % (os.getpid(), self.word)
 			while True:
-				# We send the word to every client
-				for client_socket in self.parent.client_sockets:
-					client_socket.send(self.word)
-			# And we sleep the desired frequence
-			time.sleep(self.frequence)
+				# We wait for a client to connect
+				client_socket, (client_ip, client_port) = self.socket.accept()
+				print 'New client from %s:%d' % (client_ip, client_port)
+
+				# When he does, we add it to the other clients
+				self.client_sockets.append(client_socket)
+				client_socket.send(ParrotServer.greeting)
 		except KeyboardInterrupt:
-			# When killed, we exit
-			return	
+			# When interrupted, we kill every timer,
+			# we close the socket and exit
+			for thread in threading.enumerate():
+				if thread != threading.current_thread():
+					thread.cancel()
+			self.socket.close()
+
 
