@@ -7,7 +7,7 @@ import time, random
 class ParrotServer():
     def __init__(self, parent, word, frequence):
 	'''This function is the constructor for the ParrotServer class:
-	    * parent: the calling ParrotServer
+	    * parent: the calling MainServer
 	    * word: the word we\'ll send
 	    * frequence: the frequence we\'ll wait'''
 	# Default parameter, change it to desired value
