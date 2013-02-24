@@ -9,7 +9,7 @@ class ParrotServer():
 		* port: the port to listen to'''
 		# Default values, you can change them
 		ParrotServer.default_words_frequences = [('vite', 0.8), ('BOUM', 1.0)]
-		ParrotServer.max_words = 10
+		ParrotServer.max_words = 5
 		ParrotServer.greeting = 'Connected to useless\' parrot server. Have fun!\n'
 
 		# We make sure the configuration is sound
@@ -47,7 +47,8 @@ class ParrotServer():
 		self.words_frequences.append((word, freq))
 		# If there is too many elements, we delete the first one
 		if len(self.words_frequences) > ParrotServer.max_words:
-			del self.words_frequences[0]
+			deleted_word,_ = self.words_frequences.pop(0)
+			print 'Deleted word \'%s\'' % deleted_word
 		# If not, we have to add a timer
 		else:
 			self.send_word(len(self.words_frequences)-1)
@@ -61,8 +62,12 @@ class ParrotServer():
 			self.words_frequences list'''
 		word,freq = self.words_frequences[i]
 		threading.Timer(freq, self.send_word, args=(i,)).start()
-		for client_socket in self.client_sockets:
-			client_socket.send('%s ' % word)
+		for (client_socket, client_ip, client_port) in self.client_sockets:
+			try:
+				client_socket.send('%s ' % word)
+			except:
+				print 'Client %s:%d disconnected' % (client_ip, client_port)
+				self.client_sockets.remove((client_socket, client_ip, client_port))
 
 	def launch(self):
 		'''This function launches the ParrotServer.'''
@@ -75,7 +80,7 @@ class ParrotServer():
 				print 'New client from %s:%d' % (client_ip, client_port)
 
 				# When he does, we add it to the other clients
-				self.client_sockets.append(client_socket)
+				self.client_sockets.append((client_socket, client_ip, client_port))
 				client_socket.send(ParrotServer.greeting)
 		except KeyboardInterrupt:
 			# When interrupted, we kill every timer,
