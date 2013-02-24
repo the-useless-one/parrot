@@ -2,7 +2,7 @@
 # -*- encoding: Utf-8 -*-
 
 import sys
-import ParrotServer
+import MainServer
 
 def main():
 	if len(sys.argv) < 2:
@@ -15,8 +15,8 @@ def main():
 		print 'error: port must be between 1 and 65535 (given value: %d)' % port
 		return -1
 
-	parrot_server = ParrotServer.ParrotServer(port)
-	parrot_server.launch()
+	main_server = MainServer.MainServer(port)
+	main_server.launch()
 
 	return 0
 
