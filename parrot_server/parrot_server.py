@@ -31,7 +31,6 @@ def main():
 		return -1
 
 	port = int(sys.argv[1])
-
 	if port <= 0 or port > 65535:
 		print 'error: port must be between 1 and 65535 (given value: %d)' % port
 		return -1
