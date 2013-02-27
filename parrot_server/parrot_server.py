@@ -27,15 +27,11 @@ import ParrotServer
 
 def main():
 	if len(sys.argv) < 2:
-		print 'usage: %s <port>' % sys.argv[0]
+		print 'usage: %s <configuration_file>' % sys.argv[0]
 		return -1
 
-	port = int(sys.argv[1])
-	if port <= 0 or port > 65535:
-		print 'error: port must be between 1 and 65535 (given value: %d)' % port
-		return -1
 
-	parrot_server = ParrotServer.ParrotServer(port)
+	parrot_server = ParrotServer.ParrotServer(sys.argv[1])
 	parrot_server.launch()
 
 	return 0

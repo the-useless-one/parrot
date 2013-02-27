@@ -1,0 +1,15 @@
+<conf>
+	<default_word_freq>
+		<word_freq word='vite' freq='0.8'/>
+		<word_freq word='BOUM' freq='0.5'/>
+		<word_freq word='yay ♥' freq='0.3'/>
+		<word_freq word='b-b-b-b-biatch' freq='0.55'/>
+	</default_word_freq>
+
+	<max_words value='5'/>
+
+	<port value='4242'/>
+
+	<greeting>Connected to useless' parrot server.
+Have fun!</greeting>
+</conf>

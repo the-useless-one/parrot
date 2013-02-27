@@ -75,7 +75,7 @@ def main():
 			else:
 				# If we display the words, we juste read
 				# from the socket, and print it
-				sys.stdout.write(client_socket.recv(8192))
+				sys.stdout.write(client_socket.recv(8192).decode('utf-8'))
 				sys.stdout.flush()
 		# If the user types ^C, we switch modes
 		except KeyboardInterrupt:

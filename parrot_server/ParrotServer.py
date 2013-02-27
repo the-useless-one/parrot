@@ -23,20 +23,19 @@
 # Guillaume Chelfi and Yannick Méheut - Copyright 2013
 
 import os, socket, select, threading
+from xml.dom.minidom import parseString
 
 class ParrotServer():
-	def __init__(self, port):
+	def __init__(self, configuration_file):
 		'''This function is the ParrotServer class constructor:
 		* port: the port to listen to'''
-		# Default values, you can change them
-		ParrotServer.default_words_frequences = [('vite', 0.8), ('BOUM', 1.0)]
-		ParrotServer.max_words = 5
-		ParrotServer.greeting = 'Connected to useless\' parrot server. Have fun!\n'
+		# Open configuration file
+		self.parse_configuration_file(configuration_file)
 
 		# We make sure the configuration is sound
-		assert(len(ParrotServer.default_words_frequences) <= ParrotServer.max_words)
+		assert(len(self.default_words_frequences) <= self.max_words)
+		assert(self.port >= 1 and self.port <= 65535)
 
-		self.port = port
 
 		# We initialize the socket, and tell the OS
 		# we want to reuse the address
@@ -52,8 +51,26 @@ class ParrotServer():
 		self.number_of_clients = 0
 
 		print 'adding default words'
-		for word,freq in ParrotServer.default_words_frequences:
+		for word,freq in self.default_words_frequences:
 			self.add_word_frequence(word, freq)
+
+	def parse_configuration_file(self, configuration_file):
+		configuration_fd = open(configuration_file, 'r')
+		configuration = parseString(configuration_fd.read())
+		configuration_fd.close()
+
+		self.port = int(configuration.getElementsByTagName('port')[0].attributes['value'].value)
+		self.greeting = configuration.getElementsByTagName('greeting')[0].toxml().replace('<greeting>','').replace('</greeting>','')
+		self.max_words = int(configuration.getElementsByTagName('max_words')[0].attributes['value'].value)
+		self.default_words_frequences = []
+		default_word_freq = configuration.getElementsByTagName('word_freq')
+
+		for word_freq in default_word_freq:
+			word = word_freq.attributes['word'].value
+			freq = float(word_freq.attributes['freq'].value)
+			self.default_words_frequences.append((word,freq))
+
+		return 0
 
 	def add_word_frequence(self, word, freq):
 		'''This function will add a (word,frequence) couple to
@@ -62,6 +79,8 @@ class ParrotServer():
 		words in the list:
 		* word: word to add to the list
 		* freq: frequence to add to the list'''
+		# We encode the word in UTF-8
+		word = word.encode('utf-8')
 		# We check that the word isn't already in the list
 		for w,f in self.words_frequences:
 			if w == word:
@@ -70,7 +89,7 @@ class ParrotServer():
 		# If it's not, we add it to the end of the list
 		self.words_frequences.append((word, freq))
 		# If there is too many elements, we delete the first one
-		if len(self.words_frequences) > ParrotServer.max_words:
+		if len(self.words_frequences) > self.max_words:
 			deleted_word,_ = self.words_frequences.pop(0)
 			print 'deleted word \'%s\'' % deleted_word
 		# If not, we have to add a timer
@@ -90,7 +109,7 @@ class ParrotServer():
 			client_socket = self.client_sockets[i]
 			client_ip, client_port = self.client_infos[i]
 			try:
-				client_socket.send('%s ' % word)
+				client_socket.send(word + ' ')
 			except IOError:
 				print 'client %s:%d disconnected' % (client_ip, client_port)
 				del self.client_sockets[i]
@@ -113,7 +132,7 @@ class ParrotServer():
 					self.client_sockets.append(client_socket)
 					self.client_infos.append((client_ip, client_port))
 					self.number_of_clients += 1
-					client_socket.send(ParrotServer.greeting)
+					client_socket.send(self.greeting+'\n')
 
 				# We wait to see if clients want to add a word
 				incoming_commands,_,_ = select.select(self.client_sockets, [], [], 0.05)
