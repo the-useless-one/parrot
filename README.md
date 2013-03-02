@@ -1,16 +1,25 @@
-[ PARROT ]
-
+# Parrot
+    ______                    _   
+    | ___ \                  | |  
+    | |_/ /_ _ _ __ _ __ ___ | |_ 
+    |  __/ _` | '__| '__/ _ \| __|
+    | | | (_| | |  | | | (_) | |_ 
+    \_|  \__,_|_|  |_|  \___/ \__|
+	                              
+	                              
 A fun server that repeats what you tell him to repeat.
 An original idea from Guillaume Chelfi and Yannick Méheut.
 
-[ HISTORY ]
+Fork us on [GitHub](https://github.com/the-useless-one/parrot)
+
+## History
 
 How can someone win an argument? By repeating one's point
 of view over, and over, and over, and over, [...], and over.
 
 Let's look at an example:
 
-"- Dude, this movie totally rocks!
+>"- Dude, this movie totally rocks!
 - Meh, I think it's pretty boring...
 - Is not.
 - Is too.
@@ -30,29 +39,29 @@ step was to make it "networked", and Chelfi had this
 amazing idea of enabling everyone to connect to a server
 to see the general trend of words.
 
-[ REQUIREMENTS ]
+## REQUIREMENTS
 
 All you need is Python! At the moment, we use Python2,
 but a port to Python3 is definitely on our TODO list.
 
-[ USAGE ]
+## USAGE
 
-parrot_server:
-	Just go to the parrot_server directory and type
-	the following command:
+### `parrot_server`
+Just go to the `parrot_server` directory and type
+the following command:
 
-	~$ ./parrot_server.py <port>
+    ./parrot_server.py <port>
 
-	where port is the port the server will listen on.
+where port is the port the server will listen on.
 
-	Don't forget to make the script executable by with:
+Don't forget to make the script executable by with:
 
-	~$ chmod +x parrot_server.py
+    chmod +x parrot_server.py
 
-parrot_client:
-	Whoops! Nothing to see here at the moment!
+### `parrot_client`
+Whoops! Nothing to see here at the moment!
 
-[ COPYRIGHT ]
+## COPYRIGHT
 
 Parrot - A fun server that repeats what you tell him to repeat.
 Guillaume Chelfi and Yannick Méheut
@@ -69,4 +78,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 Public License for more details.
 
 You should have received a copy of the GNU General Public License along 
-with this program. If not, see <http://www.gnu.org/licenses/>.
+with this program. If not, see [http://www.gnu.org/licenses/](http://www.gnu.org/licenses/).
