@@ -26,26 +26,26 @@ import socket, sys
 
 def main():
 	if len(sys.argv) < 3:
-		print 'usage: %s <host> <port>'
+		print ('usage: %s <host> <port>')
 		return -1
 
 	# We get the arguments, and check whether they're correct
 	host = sys.argv[1]
 	port = int(sys.argv[2])
 	if port <= 0 or port > 65535:
-		print 'error: port must be between 1 and 65535 (given value: %d)' % port
+		print ('error: port must be between 1 and 65535 (given value: %d)' % port)
 		return -1
 
 	# We try to connect to the host
 	client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	print 'connecting to %s:%d' % (host, port)
+	print ('connecting to %s:%d' % (host, port))
 	try:
 		client_socket.connect((host, port))
-	except IOError, msg:
-		print 'error: couldn\'t connect to %s:%d\nmessage: %s' % (host, port, msg)
+	except IOError as msg:
+		print ('error: couldn\'t connect to %s:%d\nmessage: %s' % (host, port, msg))
 		return -1
 	else:
-		print 'connected to host'
+		print ('connected to host')
 
 	# This boolean value is here to specify if we are
 	# receiving the words, or in "command" mode
@@ -57,21 +57,21 @@ def main():
 			if interactive_mode:
 				try:
 					# We prompt a basic shell
-					cmd = raw_input('~$ ')
+					cmd = input('~$ ')
 				# If the user types ^D, we disconnect
 				except EOFError:
-					print '\ndisconnecting from host'
+					print ('\ndisconnecting from host')
 					client_socket.close()
 					break
 				else:
 					# If the user types these commands, we disconenct
 					if cmd.lower() in ['exit', 'quit', 'q', 'disconnect']:
-						print 'disconnecting from host'
+						print ('disconnecting from host')
 						client_socket.close()
 						break
 					# Otherwise, we send it to the server
 					else:
-						client_socket.send(cmd)
+						client_socket.send(bytes(cmd,'UTF-8'))
 			else:
 				# If we display the words, we juste read
 				# from the socket, and print it
@@ -79,7 +79,7 @@ def main():
 				sys.stdout.flush()
 		# If the user types ^C, we switch modes
 		except KeyboardInterrupt:
-			print '\nswitching modes'
+			print ('\nswitching modes')
 			interactive_mode = not interactive_mode
 
 	return 0
