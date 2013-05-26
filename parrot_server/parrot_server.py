@@ -27,7 +27,7 @@ import ParrotServer
 
 def main():
 	if len(sys.argv) < 2:
-		print 'usage: %s <configuration_file>' % sys.argv[0]
+		print ('usage: %s <configuration_file>' % sys.argv[0])
 		return -1
 
 

@@ -50,7 +50,7 @@ class ParrotServer():
 		self.client_infos = []
 		self.number_of_clients = 0
 
-		print 'adding default words'
+		print ('adding default words')
 		for word,freq in self.default_words_frequences:
 			self.add_word_frequence(word, freq)
 
@@ -91,12 +91,12 @@ class ParrotServer():
 		# If there is too many elements, we delete the first one
 		if len(self.words_frequences) > self.max_words:
 			deleted_word,_ = self.words_frequences.pop(0)
-			print 'deleted word \'%s\'' % deleted_word
+			print ('deleted word \'%s\'' % deleted_word)
 		# If not, we have to add a timer
 		else:
 			self.send_word(len(self.words_frequences)-1)
 
-		print 'new word added: (%s, %f)' % (word, freq)
+		print ('new word added: (%s, %f)' % (word, freq))
 
 	def send_word(self, i):
 		'''This function sends the word, and launches a timer
@@ -105,20 +105,20 @@ class ParrotServer():
 			self.words_frequences list'''
 		word,freq = self.words_frequences[i]
 		threading.Timer(freq, self.send_word, args=(i,)).start()
-		for i in xrange(self.number_of_clients):
+		for i in range(self.number_of_clients):
 			client_socket = self.client_sockets[i]
 			client_ip, client_port = self.client_infos[i]
 			try:
-				client_socket.send(word + ' ')
+				client_socket.send(word + str.encode(' '))
 			except IOError:
-				print 'client %s:%d disconnected' % (client_ip, client_port)
+				print ('client %s:%d disconnected' % (client_ip, client_port))
 				del self.client_sockets[i]
 				del self.client_infos[i]
 				self.number_of_clients -= 1
 
 	def launch(self):
 		'''This function launches the ParrotServer.'''
-		print 'listening on %d' % self.port
+		print ('listening on %d' % self.port)
 
 		try:
 			while True:
@@ -128,11 +128,11 @@ class ParrotServer():
 				# We accept clients and add them to the client sockets list 
 				for incoming_connexion in incoming_connexions:
 					client_socket, (client_ip, client_port) = incoming_connexion.accept()
-					print 'new client from %s:%d' % (client_ip, client_port)
+					print ('new client from %s:%d' % (client_ip, client_port))
 					self.client_sockets.append(client_socket)
 					self.client_infos.append((client_ip, client_port))
 					self.number_of_clients += 1
-					client_socket.send(self.greeting+'\n')
+					client_socket.send(str.encode(self.greeting) + str.encode('\n'))
 
 				# We wait to see if clients want to add a word
 				incoming_commands,_,_ = select.select(self.client_sockets, [], [], 0.05)
@@ -142,7 +142,7 @@ class ParrotServer():
 					try:
 						cmd = incoming_command.recv(8192)
 						if cmd:
-							print 'received command %s' % cmd
+							print ('received command %s' % bytes.decode(cmd))
 					except IOError:
 						pass
 		except KeyboardInterrupt:
